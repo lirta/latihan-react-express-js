@@ -64,13 +64,21 @@ module.exports = {
     res.redirect("/admin/signin");
   },
 
-  viewDashboar: (req, res) => {
+  viewDashboar: async (req, res) => {
     try {
+      const member = await Member.find();
+      const booking = await Booking.find();
+      const item = await Item.find();
       res.render("admin/dashboard/view_dashboard", {
         title: "Staycation | Dashboard",
         user: req.session.user,
+        member,
+        booking,
+        item,
       });
-    } catch (error) {}
+    } catch (error) {
+      res.redirect("/admin/dashboard");
+    }
   },
 
   //method crut categori
@@ -594,6 +602,54 @@ module.exports = {
         user: req.session.user,
         booking,
       });
+    } catch (error) {
+      res.redirect("/admin/booking");
+    }
+  },
+
+  showDetailBooking: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const alertMessage = req.flash("alertMessage");
+      const alertStatus = req.flash("alertStatus");
+      const alert = { message: alertMessage, status: alertStatus };
+      const booking = await Booking.findOne({ _id: id })
+        .populate("memberId")
+        .populate("bankId");
+      res.render("admin/booking/show_detail_booking", {
+        title: "Staycation | Detail Booking",
+        user: req.session.user,
+        booking,
+        alert,
+      });
     } catch (error) {}
+  },
+
+  actionComfirmation: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const booking = await Booking.findOne({ _id: id });
+      booking.payments.status = "Accept";
+      await booking.save();
+      req.flash("alertMessage", "Success Comfirmation Pembayaran");
+      req.flash("alertStatus", "success");
+      res.redirect(`/admin/booking/${id}`);
+    } catch (error) {
+      res.redirect(`/admin/booking/${id}`);
+    }
+  },
+
+  actionReject: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const booking = await Booking.findOne({ _id: id });
+      booking.payments.status = "Reject";
+      await booking.save();
+      req.flash("alertMessage", "Success Reject Pembayaran");
+      req.flash("alertStatus", "success");
+      res.redirect(`/admin/booking/${id}`);
+    } catch (error) {
+      res.redirect(`/admin/booking/${id}`);
+    }
   },
 };

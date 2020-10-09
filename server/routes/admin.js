@@ -40,5 +40,8 @@ router.put("/item/update/activity", upload, adminController.editActivity);
 router.delete("/item/:itemId/activity/:id", adminController.deleteActivity);
 //crut boking
 router.get("/booking", adminController.viewBooking);
+router.get("/booking/:id", adminController.showDetailBooking);
+router.put("/booking/:id/confirmation", adminController.actionComfirmation);
+router.put("/booking/:id/reject", adminController.actionReject);
 
 module.exports = router;
