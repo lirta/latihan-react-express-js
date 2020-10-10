@@ -1,9 +1,9 @@
 const Item = require("../models/Item");
 const Treasure = require("../models/Activity");
-const Treveler = require("../models/Booking");
+const Treveler = require("../models/booking");
 const Category = require("../models/Category");
 const Bank = require("../models/Bank");
-// const Booking = require("../models/Booking");
+const Booking = require("../models/booking");
 const Member = require("../models/Member");
 
 module.exports = {
@@ -16,12 +16,11 @@ module.exports = {
 
       const category = await Category.find()
         .select("_id name")
-        .limit(3)
+        .limit(5)
         .populate({
           path: "itemId",
-          select: "_id title country city isPopular  imageId",
+          select: "_id title country city isPopular unit imageId",
           perDocumentLimit: 4,
-          option: { sort: { sumBooking: -1 } },
           populate: {
             path: "imageId",
             select: "_id imageUrl",
@@ -29,7 +28,7 @@ module.exports = {
           },
         });
 
-      //   const treveler = await Treveler.find();
+      const treveler = await Treveler.find();
       const treasure = await Treasure.find();
       const city = await Item.find();
 
@@ -58,6 +57,7 @@ module.exports = {
 
       res.status(200).json({
         hero: {
+          trevelers: treveler.length,
           treasures: treasure.length,
           cities: city.length,
         },
@@ -66,7 +66,6 @@ module.exports = {
         testimonial,
       });
     } catch (error) {
-      console.log(error);
       res.status(500).json({ message: "Internal server error" });
     }
   },
@@ -78,7 +77,6 @@ module.exports = {
         .populate({ path: "featureId", select: "_id name qty imageUrl" })
         .populate({ path: "activityId", select: "_id name type imageUrl" })
         .populate({ path: "imageId", select: "_id imageUrl" });
-
       const bank = await Bank.find();
 
       const testimonial = {
@@ -120,8 +118,6 @@ module.exports = {
     if (!req.file) {
       return res.status(404).json({ message: "Image not found" });
     }
-
-    console.log(idItem);
 
     if (
       idItem === undefined ||

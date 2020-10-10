@@ -1,5 +1,4 @@
 const Category = require("../models/Category");
-const { find } = require("../models/Category");
 const Bank = require("../models/Bank");
 const Item = require("../models/Item");
 const Image = require("../models/Image");
